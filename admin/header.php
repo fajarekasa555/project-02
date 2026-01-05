@@ -1,7 +1,11 @@
 <?php
+// Pastikan tidak ada output sebelum ini
 require_once '../config.php';
+
+// Check login sebelum ada output HTML
 requireLogin();
 
+// Set page variables
 $page_title = $page_title ?? 'Dashboard';
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
 ?>

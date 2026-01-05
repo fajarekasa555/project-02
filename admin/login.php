@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("SELECT * FROM admin WHERE username = ?");
         $stmt->execute([$username]);
         $admin = $stmt->fetch();
-        var_dump(password_verify($password, $admin['password']));
 
         
         if ($admin && password_verify($password, $admin['password'])) {

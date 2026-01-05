@@ -1,6 +1,9 @@
 <?php
 // config.php - Konfigurasi Database dan Aplikasi
 
+// Start output buffering to prevent "headers already sent" errors
+ob_start();
+
 // Database Configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
@@ -47,8 +50,21 @@ function sanitize($data) {
 }
 
 function redirect($url) {
-    header("Location: $url");
-    exit();
+    // Clear any output buffer
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+    
+    // Check if headers already sent
+    if (!headers_sent()) {
+        header("Location: $url");
+        exit();
+    } else {
+        // Fallback: use JavaScript redirect
+        echo "<script>window.location.href='$url';</script>";
+        echo "<noscript><meta http-equiv='refresh' content='0;url=$url'></noscript>";
+        exit();
+    }
 }
 
 function isLoggedIn() {
