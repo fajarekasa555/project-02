@@ -396,6 +396,59 @@
 </head>
 <body class="scroll-smooth">
     
+    <?php
+    // Include config file
+    require_once 'config.php';
+    
+    // Get database connection
+    $conn = getConnection();
+    
+    // Fetch data from database
+    try {
+        // Get statistics
+        $stmt = $conn->query("SELECT * FROM statistik ORDER BY urutan ASC");
+        $statistik = $stmt->fetchAll();
+        
+        // Get services
+        $stmt = $conn->query("SELECT * FROM layanan WHERE status = 'aktif' ORDER BY urutan ASC");
+        $layanan = $stmt->fetchAll();
+        
+        // Get about info
+        $stmt = $conn->query("SELECT * FROM tentang LIMIT 1");
+        $tentang = $stmt->fetch();
+        
+        // Get advantages
+        $stmt = $conn->query("SELECT * FROM keunggulan WHERE status = 'aktif' ORDER BY urutan ASC");
+        $keunggulan = $stmt->fetchAll();
+        
+        // Get portfolio
+        $stmt = $conn->query("SELECT * FROM portfolio WHERE status = 'aktif' ORDER BY urutan ASC LIMIT 6");
+        $portfolio = $stmt->fetchAll();
+        
+        // Get testimonials
+        $stmt = $conn->query("SELECT * FROM testimoni WHERE status = 'aktif' ORDER BY urutan ASC LIMIT 6");
+        $testimoni = $stmt->fetchAll();
+        
+        // Get price packages
+        $stmt = $conn->query("SELECT * FROM paket_harga WHERE status = 'aktif' ORDER BY urutan ASC");
+        $paket_harga = $stmt->fetchAll();
+        
+        // Get contact info
+        $stmt = $conn->query("SELECT * FROM kontak_info LIMIT 1");
+        $kontak = $stmt->fetch();
+        
+        // Get settings
+        $stmt = $conn->query("SELECT * FROM settings");
+        $settings = [];
+        while ($row = $stmt->fetch()) {
+            $settings[$row['setting_key']] = $row['setting_value'];
+        }
+        
+    } catch(PDOException $e) {
+        die("Error fetching data: " . $e->getMessage());
+    }
+    ?>
+    
     <!-- Navbar -->
     <nav class="bg-white/95 backdrop-blur-md shadow-lg fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
         <div class="container-custom py-5">
@@ -420,7 +473,7 @@
                     <a href="#kontak" class="nav-link text-gray-700 hover:text-gray-900 transition text-sm">Kontak</a>
                 </div>
                 
-                <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi" 
+                <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>?text=Halo,%20saya%20ingin%20konsultasi" 
                    target="_blank"
                    class="hidden lg:flex items-center gradient-primary text-white px-7 py-3.5 rounded-full font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105 text-sm">
                     <i class="fa-brands fa-whatsapp text-lg mr-2"></i>
@@ -444,7 +497,7 @@
                     <a href="#kontak" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition">Kontak</a>
                     
                     <div class="pt-4 pb-2">
-                        <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi" 
+                        <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>?text=Halo,%20saya%20ingin%20konsultasi" 
                            target="_blank"
                            class="block w-full text-center gradient-primary text-white px-4 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300">
                             <i class="fa-brands fa-whatsapp text-lg mr-2"></i>
@@ -494,7 +547,7 @@
                             <span>Lihat Layanan</span>
                             <i class="fa-solid fa-arrow-right ml-3"></i>
                         </a>
-                        <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi%20mengenai%20proyek%20saya%20di%20Tulungagung" 
+                        <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>?text=Halo,%20saya%20ingin%20konsultasi%20mengenai%20proyek%20saya%20di%20Tulungagung" 
                            target="_blank"
                            class="bg-white border-2 border-gray-800 text-gray-800 px-6 md:px-9 py-4 md:py-5 rounded-2xl font-bold text-sm md:text-base hover:bg-gray-800 hover:text-white transition-all duration-300 inline-flex items-center justify-center shadow-lg">
                             <i class="fa-brands fa-whatsapp text-lg md:text-xl mr-2 md:mr-3"></i>
@@ -534,18 +587,12 @@
         
         <div class="container-custom relative z-10">
             <div class="grid md:grid-cols-3 gap-12">
+                <?php foreach ($statistik as $stat): ?>
                 <div class="text-center">
-                    <div class="stats-counter mb-3">500+</div>
-                    <div class="text-blue-100 text-lg font-semibold tracking-wide">Klien Puas</div>
+                    <div class="stats-counter mb-3"><?php echo htmlspecialchars($stat['nilai']); ?></div>
+                    <div class="text-blue-100 text-lg font-semibold tracking-wide"><?php echo htmlspecialchars($stat['label']); ?></div>
                 </div>
-                <div class="text-center">
-                    <div class="stats-counter mb-3">150+</div>
-                    <div class="text-blue-100 text-lg font-semibold tracking-wide">Proyek Selesai</div>
-                </div>
-                <div class="text-center">
-                    <div class="stats-counter mb-3">10+</div>
-                    <div class="text-blue-100 text-lg font-semibold tracking-wide">Tahun Berpengalaman</div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
@@ -561,149 +608,37 @@
             </div>
             
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-                <!-- Desain Arsitektur -->
-                <div class="card-3d feature-card bg-white rounded-3xl shadow-xl p-6 md:p-10 hover:shadow-2xl border border-gray-100 fade-in">
-                    <div class="gradient-primary w-20 h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center mb-6 md:mb-8 feature-icon shadow-lg icon-rotate">
-                        <i class="fa-solid fa-compass-drafting text-white text-3xl md:text-4xl"></i>
+                <?php foreach ($layanan as $index => $service): ?>
+                <?php 
+                    $gradients = ['gradient-primary', 'gradient-accent', 'gradient-secondary'];
+                    $gradient = $gradients[$index % 3];
+                    $features = explode('|', $service['fitur']);
+                    ?>
+                    <div class="card-3d feature-card bg-white rounded-3xl shadow-xl p-6 md:p-10 hover:shadow-2xl border border-gray-100 fade-in">
+                        <div class="<?php echo $gradient; ?> w-20 h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center mb-6 md:mb-8 feature-icon shadow-lg icon-rotate">
+                            <i class="fa-solid <?php echo htmlspecialchars($service['icon']); ?> text-white text-3xl md:text-4xl"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-bold mb-4 md:mb-5 heading-font"><?php echo htmlspecialchars($service['nama']); ?></h3>
+                        <p class="text-gray-600 mb-6 md:mb-8 leading-relaxed text-sm md:text-base">
+                            <?php echo htmlspecialchars($service['deskripsi']); ?>
+                        </p>
+                        <ul class="space-y-3 md:space-y-4 mb-8 md:mb-10">
+                            <?php foreach ($features as $feature): ?>
+                            <li class="flex items-start">
+                                <div class="<?php echo $gradient; ?> w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
+                                    <i class="fa-solid fa-check text-white text-xs"></i>
+                                </div>
+                                <span class="text-gray-700 text-sm md:text-base"><?php echo htmlspecialchars(trim($feature)); ?></span>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>?text=Halo,%20saya%20tertarik%20dengan%20layanan%20<?php echo urlencode($service['nama']); ?>" 
+                        target="_blank"
+                        class="block text-center <?php echo $gradient; ?> text-white py-3 md:py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm md:text-base">
+                            Konsultasi Sekarang
+                        </a>
                     </div>
-                    <h3 class="text-2xl md:text-3xl font-bold mb-4 md:mb-5 heading-font">Desain Arsitektur</h3>
-                    <p class="text-gray-600 mb-6 md:mb-8 leading-relaxed text-sm md:text-base">
-                        Desain bangunan modern dan fungsional dengan mempertimbangkan estetika, efisiensi ruang, dan kebutuhan klien.
-                    </p>
-                    <ul class="space-y-3 md:space-y-4 mb-8 md:mb-10">
-                        <li class="flex items-start">
-                            <div class="gradient-primary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Desain rumah tinggal (1-3 lantai)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-primary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Desain gedung komersial & perkantoran</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-primary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Renovasi & remodeling</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-primary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Gambar kerja lengkap (DED)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-primary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">3D Rendering & Visualisasi</span>
-                        </li>
-                    </ul>
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20layanan%20Desain%20Arsitektur" 
-                       target="_blank"
-                       class="block text-center gradient-primary text-white py-3 md:py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm md:text-base">
-                        Konsultasi Sekarang
-                    </a>
-                </div>
-
-                <!-- RAB & Anggaran -->
-                <div class="card-3d feature-card bg-white rounded-3xl shadow-xl p-6 md:p-10 hover:shadow-2xl border border-gray-100 fade-in">
-                    <div class="gradient-accent w-20 h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center mb-6 md:mb-8 feature-icon shadow-lg icon-rotate">
-                        <i class="fa-solid fa-calculator text-white text-3xl md:text-4xl"></i>
-                    </div>
-                    <h3 class="text-2xl md:text-3xl font-bold mb-4 md:mb-5 heading-font">RAB & Anggaran</h3>
-                    <p class="text-gray-600 mb-6 md:mb-8 leading-relaxed text-sm md:text-base">
-                        Perhitungan rencana anggaran biaya yang detail, akurat, dan transparan untuk perencanaan keuangan proyek Anda.
-                    </p>
-                    <ul class="space-y-3 md:space-y-4 mb-8 md:mb-10">
-                        <li class="flex items-start">
-                            <div class="gradient-accent w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Rencana Anggaran Biaya (RAB) detail</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-accent w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Bill of Quantity (BoQ) lengkap</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-accent w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Analisa harga satuan pekerjaan</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-accent w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Time schedule & kurva S</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-accent w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Estimasi biaya material & upah</span>
-                        </li>
-                    </ul>
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20layanan%20RAB%20dan%20Anggaran" 
-                       target="_blank"
-                       class="block text-center gradient-accent text-white py-3 md:py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm md:text-base">
-                        Konsultasi Sekarang
-                    </a>
-                </div>
-
-                <!-- Desain Struktur -->
-                <div class="card-3d feature-card bg-white rounded-3xl shadow-xl p-6 md:p-10 hover:shadow-2xl border border-gray-100 fade-in">
-                    <div class="gradient-secondary w-20 h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center mb-6 md:mb-8 feature-icon shadow-lg icon-rotate">
-                        <i class="fa-solid fa-helmet-safety text-white text-3xl md:text-4xl"></i>
-                    </div>
-                    <h3 class="text-2xl md:text-3xl font-bold mb-4 md:mb-5 heading-font">Desain Struktur</h3>
-                    <p class="text-gray-600 mb-6 md:mb-8 leading-relaxed text-sm md:text-base">
-                        Perhitungan dan desain struktur bangunan yang aman, kuat, dan sesuai dengan standar konstruksi nasional.
-                    </p>
-                    <ul class="space-y-3 md:space-y-4 mb-8 md:mb-10">
-                        <li class="flex items-start">
-                            <div class="gradient-secondary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Perhitungan struktur (SAP/ETABS)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-secondary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Gambar struktur detail</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-secondary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Analisa pondasi & soil test</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-secondary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Desain MEP (Mekanikal, Elektrikal, Plumbing)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <div class="gradient-secondary w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center mr-2 md:mr-3 mt-0.5 flex-shrink-0">
-                                <i class="fa-solid fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-gray-700 text-sm md:text-base">Konsultasi engineering</span>
-                        </li>
-                    </ul>
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20layanan%20Desain%20Struktur" 
-                       target="_blank"
-                       class="block text-center gradient-secondary text-white py-3 md:py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm md:text-base">
-                        Konsultasi Sekarang
-                    </a>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
@@ -728,47 +663,24 @@
                 </div>
                 
                 <div class="order-1 lg:order-2">
-                    <h2 class="text-3xl md:text-4xl lg:text-6xl font-black mb-6 md:mb-8 heading-font">Tentang <span class="text-gradient">ArsiRAB Tulungagung</span></h2>
+                    <h2 class="text-3xl md:text-4xl lg:text-6xl font-black mb-6 md:mb-8 heading-font">Tentang <span class="text-gradient"><?php echo htmlspecialchars($settings['site_name'] ?? 'ArsiRAB Tulungagung'); ?></span></h2>
                     <p class="text-base md:text-lg text-gray-600 mb-4 md:mb-6 leading-relaxed">
-                        ArsiRAB Tulungagung adalah penyedia jasa konsultan desain arsitektur dan perencanaan konstruksi yang telah 
-                        berpengalaman lebih dari 10 tahun melayani masyarakat Tulungagung dan sekitarnya. Kami menangani berbagai 
-                        proyek dari skala rumah tinggal hingga gedung komersial.
+                        <?php echo htmlspecialchars($tentang['deskripsi_1'] ?? ''); ?>
                     </p>
                     <p class="text-base md:text-lg text-gray-600 mb-8 md:mb-10 leading-relaxed">
-                        Tim kami terdiri dari arsitek bersertifikat, civil engineer, quantity surveyor, dan drafter berpengalaman. 
-                        Komitmen kami adalah memberikan solusi desain terbaik dengan harga terjangkau dan pelayanan yang memuaskan 
-                        untuk seluruh masyarakat Tulungagung.
+                        <?php echo htmlspecialchars($tentang['deskripsi_2'] ?? ''); ?>
                     </p>
                     
                     <div class="grid grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
+                        <?php foreach ($keunggulan as $index => $unggul): ?>
                         <div class="benefit-card p-5 md:p-7 shadow-lg fade-in">
                             <div class="benefit-icon gradient-primary w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-5 shadow-md">
-                                <i class="fa-solid fa-certificate text-white text-xl md:text-2xl"></i>
+                                <i class="fa-solid <?php echo htmlspecialchars($unggul['icon']); ?> text-white text-xl md:text-2xl"></i>
                             </div>
-                            <h4 class="font-bold text-base md:text-lg mb-1 md:mb-2">Profesional</h4>
-                            <p class="text-gray-600 text-xs md:text-sm">Tim profesional dengan sertifikasi resmi</p>
+                            <h4 class="font-bold text-base md:text-lg mb-1 md:mb-2"><?php echo htmlspecialchars($unggul['judul']); ?></h4>
+                            <p class="text-gray-600 text-xs md:text-sm"><?php echo htmlspecialchars($unggul['deskripsi']); ?></p>
                         </div>
-                        <div class="benefit-card p-5 md:p-7 shadow-lg fade-in">
-                            <div class="benefit-icon gradient-primary w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-5 shadow-md">
-                                <i class="fa-solid fa-shield-halved text-white text-xl md:text-2xl"></i>
-                            </div>
-                            <h4 class="font-bold text-base md:text-lg mb-1 md:mb-2">Terjamin</h4>
-                            <p class="text-gray-600 text-xs md:text-sm">Garansi hasil dan revisi sampai puas</p>
-                        </div>
-                        <div class="benefit-card p-5 md:p-7 shadow-lg fade-in">
-                            <div class="benefit-icon gradient-primary w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-5 shadow-md">
-                                <i class="fa-solid fa-headset text-white text-xl md:text-2xl"></i>
-                            </div>
-                            <h4 class="font-bold text-base md:text-lg mb-1 md:mb-2">Support 24/7</h4>
-                            <p class="text-gray-600 text-xs md:text-sm">Konsultasi kapan saja Anda butuhkan</p>
-                        </div>
-                        <div class="benefit-card p-5 md:p-7 shadow-lg fade-in">
-                            <div class="benefit-icon gradient-primary w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-5 shadow-md">
-                                <i class="fa-solid fa-handshake text-white text-xl md:text-2xl"></i>
-                            </div>
-                            <h4 class="font-bold text-base md:text-lg mb-1 md:mb-2">Terpercaya</h4>
-                            <p class="text-gray-600 text-xs md:text-sm">Ratusan klien puas di Tulungagung</p>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                     
                     <a href="#kontak" class="inline-flex items-center gradient-primary text-white px-6 md:px-9 py-4 md:py-5 rounded-2xl font-bold text-sm md:text-base hover:shadow-xl transition-all duration-300 hover:scale-105">
@@ -791,113 +703,25 @@
             </div>
             
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <?php foreach ($portfolio as $item): ?>
                 <div class="portfolio-item relative overflow-hidden rounded-3xl shadow-xl group scale-in">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=600&fit=crop" 
-                         alt="Portfolio 1" 
+                    <img src="<?php echo htmlspecialchars($item['gambar'] ? 'uploads/' . $item['gambar'] : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=600&fit=crop'); ?>" 
+                         alt="<?php echo htmlspecialchars($item['judul']); ?>" 
                          class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
                     <div class="portfolio-overlay absolute inset-0 flex flex-col justify-end p-8">
                         <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <h3 class="text-2xl font-bold text-white mb-3 heading-font">Rumah Modern Minimalis</h3>
-                            <p class="text-white/90 text-sm mb-5 leading-relaxed">Desain rumah 2 lantai dengan konsep minimalis modern di Kedungwaru. Luas bangunan 250m²</p>
+                            <h3 class="text-2xl font-bold text-white mb-3 heading-font"><?php echo htmlspecialchars($item['judul']); ?></h3>
+                            <p class="text-white/90 text-sm mb-5 leading-relaxed"><?php echo htmlspecialchars($item['deskripsi']); ?></p>
                             <div class="flex items-center justify-between">
-                                <span class="text-white/90 font-semibold text-sm">2023 • Tulungagung</span>
-                                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
+                                <span class="text-white/90 font-semibold text-sm"><?php echo htmlspecialchars($item['tahun'] . ' • ' . $item['lokasi']); ?></span>
+                                <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="portfolio-item relative overflow-hidden rounded-3xl shadow-xl group scale-in">
-                    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&h=600&fit=crop" 
-                         alt="Portfolio 2" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="portfolio-overlay absolute inset-0 flex flex-col justify-end p-8">
-                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <h3 class="text-2xl font-bold text-white mb-3 heading-font">Gedung Perkantoran</h3>
-                            <p class="text-white/90 text-sm mb-5 leading-relaxed">Desain gedung kantor 5 lantai dengan RAB lengkap dan perhitungan struktur. Luas 1200m²</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-white/90 font-semibold text-sm">2023 • Tulungagung Kota</span>
-                                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="portfolio-item relative overflow-hidden rounded-3xl shadow-xl group scale-in">
-                    <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=500&h=600&fit=crop" 
-                         alt="Portfolio 3" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="portfolio-overlay absolute inset-0 flex flex-col justify-end p-8">
-                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <h3 class="text-2xl font-bold text-white mb-3 heading-font">Ruko 3 Lantai</h3>
-                            <p class="text-white/90 text-sm mb-5 leading-relaxed">Desain ruko komersial dengan lahan terbatas di area strategis. Luas bangunan 180m²</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-white/90 font-semibold text-sm">2022 • Boyolangu</span>
-                                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="portfolio-item relative overflow-hidden rounded-3xl shadow-xl group scale-in">
-                    <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=500&h=600&fit=crop" 
-                         alt="Portfolio 4" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="portfolio-overlay absolute inset-0 flex flex-col justify-end p-8">
-                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <h3 class="text-2xl font-bold text-white mb-3 heading-font">Villa Modern</h3>
-                            <p class="text-white/90 text-sm mb-5 leading-relaxed">Desain villa dengan konsep modern di area pegunungan Tulungagung. Luas bangunan 350m²</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-white/90 font-semibold text-sm">2023 • Campurdarat</span>
-                                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="portfolio-item relative overflow-hidden rounded-3xl shadow-xl group scale-in">
-                    <img src="https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=500&h=600&fit=crop" 
-                         alt="Portfolio 5" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="portfolio-overlay absolute inset-0 flex flex-col justify-end p-8">
-                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <h3 class="text-2xl font-bold text-white mb-3 heading-font">Renovasi Rumah</h3>
-                            <p class="text-white/90 text-sm mb-5 leading-relaxed">Renovasi total rumah lama menjadi modern minimalis. Luas renovasi 180m²</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-white/90 font-semibold text-sm">2022 • Kauman</span>
-                                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="portfolio-item relative overflow-hidden rounded-3xl shadow-xl group scale-in">
-                    <img src="https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=500&h=600&fit=crop" 
-                         alt="Portfolio 6" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="portfolio-overlay absolute inset-0 flex flex-col justify-end p-8">
-                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <h3 class="text-2xl font-bold text-white mb-3 heading-font">Klinik 3 Lantai</h3>
-                            <p class="text-white/90 text-sm mb-5 leading-relaxed">Desain klinik kesehatan dengan fasilitas lengkap. Luas bangunan 400m²</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-white/90 font-semibold text-sm">2023 • Kedungwaru</span>
-                                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-blue-600 w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-lg">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
             
             <div class="text-center mt-16">
@@ -1024,141 +848,40 @@
             </div>
             
             <div class="grid lg:grid-cols-3 gap-10 mb-16">
-                <!-- Desain Basic -->
-                <div class="pricing-card bg-white rounded-3xl p-10 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-3 fade-in">
-                    <div class="text-center mb-10">
-                        <div class="inline-block bg-blue-100 text-blue-700 px-5 py-2 rounded-full text-sm font-bold mb-8 tracking-wide">
-                            DESAIN BASIC
+                <?php foreach ($paket_harga as $index => $paket): ?>
+                <?php 
+                $isRecommended = $index == 1; // Paket kedua sebagai recommended
+                $cardClass = $isRecommended ? 'bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 rounded-3xl p-10 shadow-2xl relative fade-in' : 'pricing-card bg-white rounded-3xl p-10 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-3 fade-in';
+                $textClass = $isRecommended ? 'text-white' : '';
+                $badgeClass = $isRecommended ? 'bg-white/20 backdrop-blur-sm text-white' : 'bg-blue-100 text-blue-700';
+                $features = explode('|', $paket['fitur']);
+                ?>
+                <div class="<?php echo $cardClass; ?>">
+                    <div class="text-center mb-10 <?php echo $textClass; ?>">
+                        <div class="inline-block <?php echo $badgeClass; ?> px-5 py-2 rounded-full text-sm font-bold mb-8 tracking-wide">
+                            <?php echo htmlspecialchars($paket['badge']); ?>
                         </div>
-                        <h3 class="text-3xl font-black mb-5 heading-font">Desain Sederhana</h3>
-                        <div class="text-6xl font-black text-gradient mb-3 heading-font">Rp 3jt</div>
-                        <p class="text-gray-500 font-medium">mulai dari / 100m²</p>
+                        <h3 class="text-3xl font-black mb-5 heading-font"><?php echo htmlspecialchars($paket['nama_paket']); ?></h3>
+                        <div class="text-6xl font-black mb-3 heading-font <?php echo $isRecommended ? '' : 'text-gradient'; ?>"><?php echo htmlspecialchars($paket['harga']); ?></div>
+                        <p class="<?php echo $isRecommended ? 'text-blue-100' : 'text-gray-500'; ?> font-medium"><?php echo htmlspecialchars($paket['harga_mulai'] ?? 'mulai dari'); ?></p>
                     </div>
                     
-                    <ul class="space-y-4 mb-10">
+                    <ul class="space-y-4 mb-10 <?php echo $textClass; ?>">
+                        <?php foreach ($features as $feature): ?>
                         <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Desain denah 2D</span>
+                            <i class="fa-solid fa-circle-check <?php echo $isRecommended ? 'text-yellow-300' : 'text-green-500'; ?> text-xl mr-3 mt-0.5"></i>
+                            <span><?php echo htmlspecialchars(trim($feature)); ?></span>
                         </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Tampak & potongan</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">3D eksterior (2 angle)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">RAB sederhana</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">2x revisi</span>
-                        </li>
+                        <?php endforeach; ?>
                     </ul>
                     
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi%20untuk%20Desain%20Basic" 
+                    <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>?text=Halo,%20saya%20ingin%20konsultasi%20untuk%20<?php echo urlencode($paket['nama_paket']); ?>" 
                        target="_blank"
-                       class="block text-center gradient-primary text-white py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300">
+                       class="block text-center <?php echo $isRecommended ? 'bg-white text-blue-700 hover:bg-yellow-300' : 'gradient-primary text-white'; ?> py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300">
                         Konsultasi Sekarang
                     </a>
                 </div>
-                
-                <!-- Desain Professional (Recommended) -->
-                <div class="pricing-card bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 rounded-3xl p-10 shadow-2xl relative fade-in">
-                    
-                    <div class="text-center mb-10 text-white">
-                        <div class="inline-block bg-white/20 backdrop-blur-sm text-white px-5 py-2 rounded-full text-sm font-bold mb-8 tracking-wide">
-                            DESAIN PROFESIONAL
-                        </div>
-                        <h3 class="text-3xl font-black mb-5 heading-font">Desain Lengkap</h3>
-                        <div class="text-6xl font-black mb-3 heading-font">Rp 5jt</div>
-                        <p class="text-blue-100 font-medium">mulai dari / 100m²</p>
-                    </div>
-                    
-                    <ul class="space-y-4 mb-10 text-white">
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-yellow-300 text-xl mr-3 mt-0.5"></i>
-                            <span>Semua fitur Desain Basic</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-yellow-300 text-xl mr-3 mt-0.5"></i>
-                            <span>3D interior (4 ruang)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-yellow-300 text-xl mr-3 mt-0.5"></i>
-                            <span>Gambar kerja lengkap (DED)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-yellow-300 text-xl mr-3 mt-0.5"></i>
-                            <span>RAB detail + BoQ</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-yellow-300 text-xl mr-3 mt-0.5"></i>
-                            <span>Perhitungan struktur</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-yellow-300 text-xl mr-3 mt-0.5"></i>
-                            <span>5x revisi</span>
-                        </li>
-                    </ul>
-                    
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi%20untuk%20Desain%20Profesional" 
-                       target="_blank"
-                       class="block text-center bg-white text-blue-700 py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300 hover:bg-yellow-300">
-                        Konsultasi Sekarang
-                    </a>
-                </div>
-                
-                <!-- Desain Premium -->
-                <div class="pricing-card bg-white rounded-3xl p-10 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-3 fade-in">
-                    <div class="text-center mb-10">
-                        <div class="inline-block gradient-secondary text-white px-5 py-2 rounded-full text-sm font-bold mb-8 tracking-wide shadow-md">
-                            DESAIN PREMIUM
-                        </div>
-                        <h3 class="text-3xl font-black mb-5 heading-font">Desain Eksklusif</h3>
-                        <div class="text-6xl font-black text-gradient mb-3 heading-font">Rp 8jt</div>
-                        <p class="text-gray-500 font-medium">mulai dari / 100m²</p>
-                    </div>
-                    
-                    <ul class="space-y-4 mb-10">
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Semua fitur Profesional</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">3D interior semua ruangan</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Video walkthrough</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Desain MEP lengkap</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Time schedule proyek</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Revisi unlimited</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-circle-check text-green-500 text-xl mr-3 mt-0.5"></i>
-                            <span class="text-gray-700">Konsultasi pembangunan</span>
-                        </li>
-                    </ul>
-                    
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi%20untuk%20Desain%20Premium" 
-                       target="_blank"
-                       class="block text-center gradient-secondary text-white py-4 rounded-2xl font-bold hover:shadow-xl transition-all duration-300">
-                        Konsultasi Sekarang
-                    </a>
-                </div>
+                <?php endforeach; ?>
             </div>
             
             <div class="text-center">
@@ -1222,8 +945,8 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 heading-font">WhatsApp</h3>
                     <p class="text-gray-600 mb-5">Chat langsung dengan tim kami</p>
-                    <a href="https://wa.me/6281234567890" target="_blank" class="text-blue-700 font-bold hover:text-blue-900 text-lg">
-                        +62 812-3456-7890
+                    <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>" target="_blank" class="text-blue-700 font-bold hover:text-blue-900 text-lg">
+                        <?php echo htmlspecialchars('+'.$kontak['whatsapp'] ?? '+62 812-3456-7890'); ?>
                     </a>
                 </div>
                 
@@ -1233,8 +956,8 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 heading-font">Email</h3>
                     <p class="text-gray-600 mb-5">Kirim detail proyek Anda</p>
-                    <a href="/cdn-cgi/l/email-protection#84edeae2ebc4e5f6f7edf6e5e6f0f1e8f1eae3e5e3f1eae3aae7ebe9" class="text-green-700 font-bold hover:text-green-900 text-lg">
-                        <span class="__cf_email__" data-cfemail="dcb5b2bab39cbdaeafb5aebdbea8a9b0a9b2bbbdbba9b2bbf2bfb3b1">[email&#160;protected]</span>
+                    <a href="mailto:<?php echo htmlspecialchars($kontak['email'] ?? 'info@arsirab.com'); ?>" class="text-green-700 font-bold hover:text-green-900 text-lg">
+                        <?php echo htmlspecialchars($kontak['email'] ?? 'info@arsirab.com'); ?>
                     </a>
                 </div>
                 
@@ -1245,9 +968,7 @@
                     <h3 class="text-2xl font-bold mb-4 heading-font">Kantor</h3>
                     <p class="text-gray-600 mb-5">Kunjungi kantor kami</p>
                     <p class="text-orange-700 font-bold text-base leading-relaxed">
-                        Jln. Rosalia, Mekarsari<br>
-                        Desa Tunggulsari, Kedungwaru<br>
-                        Tulungagung 66229
+                        <?php echo nl2br(htmlspecialchars($kontak['alamat'] ?? 'Jln. Rosalia, Mekarsari<br>Desa Tunggulsari, Kedungwaru<br>Tulungagung 66229')); ?>
                     </p>
                 </div>
             </div>
@@ -1283,7 +1004,7 @@
                         <a href="#" class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition-all duration-300 hover:scale-110">
                             <i class="fa-brands fa-linkedin-in"></i>
                         </a>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center text-gray-300 hover:bg-green-600 hover:text-white transition-all duration-300 hover:scale-110">
+                        <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>" target="_blank" class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center text-gray-300 hover:bg-green-600 hover:text-white transition-all duration-300 hover:scale-110">
                             <i class="fa-brands fa-whatsapp"></i>
                         </a>
                     </div>
@@ -1306,19 +1027,19 @@
                     <ul class="space-y-4">
                         <li class="flex items-start space-x-3">
                             <i class="fa-solid fa-location-dot text-blue-400 mt-1"></i>
-                            <span class="text-gray-300 text-sm leading-relaxed">Jln. Rosalia, Mekarsari<br>Desa Tunggulsari<br>Kedungwaru, Tulungagung 66229</span>
+                            <span class="text-gray-300 text-sm leading-relaxed"><?php echo nl2br(htmlspecialchars($kontak['alamat'] ?? 'Alamat belum diatur')); ?></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <i class="fa-solid fa-phone text-blue-400"></i>
-                            <span class="text-gray-300 text-sm">+62 812-3456-7890</span>
+                            <span class="text-gray-300 text-sm"><?php echo htmlspecialchars('+' . $kontak['whatsapp'] ?? '+62 812-3456-7890'); ?></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <i class="fa-solid fa-envelope text-blue-400"></i>
-                            <span class="text-gray-300 text-sm"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="97fef9f1f8d7f6e5e4fee5f6f5e3e2fbe2f9f0f6f0e2f9f0b9f4f8fa">[email&#160;protected]</a></span>
+                            <span class="text-gray-300 text-sm"><?php echo htmlspecialchars($kontak['email'] ?? 'info@arsirab.com'); ?></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <i class="fa-solid fa-clock text-blue-400"></i>
-                            <span class="text-gray-300 text-sm">Senin - Jumat: 08:00 - 17:00</span>
+                            <span class="text-gray-300 text-sm"><?php echo htmlspecialchars($kontak['jam_kerja'] ?? 'Senin - Jumat: 08:00 - 17:00'); ?></span>
                         </li>
                     </ul>
                 </div>
@@ -1338,7 +1059,7 @@
     </footer>
 
     <!-- WhatsApp Float Button -->
-    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20konsultasi" 
+    <a href="https://wa.me/<?php echo htmlspecialchars($kontak['whatsapp'] ?? '6281234567890'); ?>?text=Halo,%20saya%20ingin%20konsultasi" 
        target="_blank"
        class="wa-float bg-green-500 w-20 h-20 rounded-full flex items-center justify-center hover:bg-green-600 transition-all duration-300 hover:scale-110">
         <i class="fa-brands fa-whatsapp text-white text-4xl"></i>
